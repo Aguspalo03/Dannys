@@ -258,7 +258,8 @@ let activeTable = null;
 
 function fmt(n){ return '€' + n.toFixed(2).replace(/\.00$/,''); }
 function getItem(id){ return state.items.find(i=>i.id===id); }
-function tableOrder(t){ return state.tables[t] || []; }
+function tk(t){ return 't'+t; }
+function tableOrder(t){ return state.tables[tk(t)] || []; }
 function tableTotal(t){
   return tableOrder(t).reduce((s,l)=>{ const it=getItem(l.id); return s + (it?it.price*l.qty:0); },0);
 }
@@ -352,14 +353,14 @@ function handleQtyClick(e){
   if(!btn) return;
   const id = btn.dataset.id;
   const act = btn.dataset.act;
-  if(!state.tables[activeTable]) state.tables[activeTable] = [];
-  const order = state.tables[activeTable];
+  if(!state.tables[tk(activeTable)]) state.tables[tk(activeTable)] = [];
+  const order = state.tables[tk(activeTable)];
   let line = order.find(l=>l.id===id);
   if(act==='plus'){
     if(stockRemaining(id) <= 0) return;
     if(line) line.qty++; else order.push({id, qty:1});
   } else {
-    if(line){ line.qty--; if(line.qty<=0) state.tables[activeTable] = order.filter(l=>l.id!==id); }
+    if(line){ line.qty--; if(line.qty<=0) state.tables[tk(activeTable)] = order.filter(l=>l.id!==id); }
   }
   save();
   renderPanel();
@@ -389,7 +390,7 @@ document.getElementById('chargeBtn').onclick = ()=>{
     const it = getItem(l.id);
     it.stock = Math.max(0, it.stock - l.qty);
   });
-  delete state.tables[activeTable];
+  delete state.tables[tk(activeTable)];
   if(!state.salesLog) state.salesLog = [];
   state.salesLog.unshift({id: Date.now()+'-'+activeTable, table: activeTable, total, items: itemsSnapshot, closedAt: new Date().toISOString()});
   save();
@@ -460,8 +461,8 @@ function handleDel(e){
   if(!btn) return;
   state.items = state.items.filter(i=>i.id!==btn.dataset.id);
   Object.keys(state.tables).forEach(t=>{
-    state.tables[t] = state.tables[t].filter(l=>l.id!==btn.dataset.id);
-    if(!state.tables[t].length) delete state.tables[t];
+    state.tables[tk(t)] = (state.tables[tk(t)]||[]).filter(l=>l.id!==btn.dataset.id);
+    if(!state.tables[tk(t)].length) delete state.tables[tk(t)];
   });
   save();
   renderMenuLists();

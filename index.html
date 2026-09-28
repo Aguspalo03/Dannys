@@ -120,7 +120,7 @@ main{padding:20px; max-width:960px; margin:0 auto;}
 <header>
   <div>
     <h1>DANNY'S DINER</h1>
-    <div class="sub">Tables · Stock · Sales</div>
+    <div class="sub">Tables · Stock · Sales · v4</div>
   </div>
   <nav>
     <button id="navMesas" class="active">Tables</button>
@@ -178,6 +178,7 @@ main{padding:20px; max-width:960px; margin:0 auto;}
 </div>
 
 <div id="toast" class="toast"></div>
+<div id="errBox" style="display:none;position:fixed;top:0;left:0;right:0;background:#8C2A22;color:#fff;padding:8px 12px;font-size:12px;z-index:99;"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -235,11 +236,28 @@ function seed(){
   };
 }
 
+function normalize(s){
+  if(!s || typeof s !== 'object') return seed();
+  if(!Array.isArray(s.items) || !s.items.length) s.items = seed().items;
+  if(!s.tables || typeof s.tables !== 'object'){
+    s.tables = {};
+  } else if(Array.isArray(s.tables)){
+    const obj = {};
+    s.tables.forEach((v,idx)=>{ if(v && Array.isArray(v) && v.length) obj['t'+idx]=v; });
+    s.tables = obj;
+  } else {
+    Object.keys(s.tables).forEach(k=>{
+      if(!s.tables[k] || !Array.isArray(s.tables[k]) || !s.tables[k].length) delete s.tables[k];
+    });
+  }
+  if(!Array.isArray(s.salesLog)) s.salesLog = [];
+  return s;
+}
 function load(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return seed();
-    return JSON.parse(raw);
+    return normalize(JSON.parse(raw));
   }catch(e){ return seed(); }
 }
 function save(){
@@ -253,20 +271,21 @@ function renderAll(){
   if(document.getElementById('viewHistory').classList.contains('active')) renderHistory();
 }
 
+window.addEventListener('error',e=>{const b=document.getElementById('errBox'); if(b){b.style.display='block'; b.textContent='Error: '+e.message;}});
 let state = load();
 let activeTable = null;
 
 function fmt(n){ return '€' + n.toFixed(2).replace(/\.00$/,''); }
 function getItem(id){ return state.items.find(i=>i.id===id); }
 function tk(t){ return 't'+t; }
-function tableOrder(t){ return state.tables[tk(t)] || []; }
+function tableOrder(t){ return ((state&&state.tables)||{})[tk(t)] || []; }
 function tableTotal(t){
   return tableOrder(t).reduce((s,l)=>{ const it=getItem(l.id); return s + (it?it.price*l.qty:0); },0);
 }
 function stockRemaining(id){
   const item = getItem(id);
   let reserved = 0;
-  Object.values(state.tables).forEach(order=>{
+  Object.values(state.tables||{}).forEach(order=>{
     const l = order.find(x=>x.id===id);
     if(l) reserved += l.qty;
   });
@@ -487,9 +506,11 @@ document.getElementById('addItemBtn').onclick = ()=>{
 renderTables();
 if(firebaseReady && db){
   db.on('value', snap=>{
-    const remote = snap.val();
-    if(remote){ state = remote; } else { db.set(state); }
-    renderAll();
+    try{
+      const remote = snap.val();
+      if(remote){ state = normalize(remote); } else { db.set(state); }
+      renderAll();
+    }catch(e){ console.error('Sync error, keeping last good view.', e); }
   });
 }
 </script>

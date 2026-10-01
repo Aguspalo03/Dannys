@@ -246,8 +246,11 @@ function normalize(s){
     s.tables.forEach((v,idx)=>{ if(v && Array.isArray(v) && v.length) obj['t'+idx]=v; });
     s.tables = obj;
   } else {
+    const validIds = new Set(s.items.map(i=>i.id));
     Object.keys(s.tables).forEach(k=>{
-      if(!s.tables[k] || !Array.isArray(s.tables[k]) || !s.tables[k].length) delete s.tables[k];
+      if(!s.tables[k] || !Array.isArray(s.tables[k])) { delete s.tables[k]; return; }
+      s.tables[k] = s.tables[k].filter(l=>l && validIds.has(l.id));
+      if(!s.tables[k].length) delete s.tables[k];
     });
   }
   if(!Array.isArray(s.salesLog)) s.salesLog = [];
@@ -440,10 +443,32 @@ function renderHistory(){
       <div class="hist-time">${timeStr}</div>
       <div class="hist-head"><span class="table">Table ${e.table}</span><span class="total">${fmt(e.total)}</span></div>
       <div class="hist-items">${itemsStr}</div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="qty-btn hist-edit" data-id="${e.id}" style="width:auto; padding:4px 10px; font-size:12px;">Edit</button>
+        <button class="qty-btn hist-del" data-id="${e.id}" style="width:auto; padding:4px 10px; font-size:12px; border-color:var(--red); color:var(--red);">Delete</button>
+      </div>
     `;
     listEl.appendChild(div);
   });
 }
+document.getElementById('historyList').addEventListener('click', e=>{
+  const delBtn = e.target.closest('.hist-del');
+  const editBtn = e.target.closest('.hist-edit');
+  if(delBtn){
+    if(!confirm('Delete this closed-table entry?')) return;
+    state.salesLog = (state.salesLog||[]).filter(x=>x.id!==delBtn.dataset.id);
+    save(); renderHistory();
+  } else if(editBtn){
+    const entry = (state.salesLog||[]).find(x=>x.id===editBtn.dataset.id);
+    if(!entry) return;
+    const val = prompt('New total for Table ' + entry.table + ' (€):', entry.total);
+    if(val===null) return;
+    const num = parseFloat(val.replace(',','.'));
+    if(isNaN(num)) return;
+    entry.total = num;
+    save(); renderHistory();
+  }
+});
 
 // ---- Menu & stock management ----
 function renderMenuLists(){
@@ -480,8 +505,8 @@ function handleDel(e){
   if(!btn) return;
   state.items = state.items.filter(i=>i.id!==btn.dataset.id);
   Object.keys(state.tables).forEach(t=>{
-    state.tables[tk(t)] = (state.tables[tk(t)]||[]).filter(l=>l.id!==btn.dataset.id);
-    if(!state.tables[tk(t)].length) delete state.tables[tk(t)];
+    state.tables[t] = (state.tables[t]||[]).filter(l=>l.id!==btn.dataset.id);
+    if(!state.tables[t].length) delete state.tables[t];
   });
   save();
   renderMenuLists();

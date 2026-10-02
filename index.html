@@ -226,40 +226,56 @@ try{
 const STORAGE_KEY = 'dannys-diner-data-v1';
 const NUM_TABLES = 8;
 
+const MENU_VERSION = 2;
+function freshMenu(){
+  return [
+    {id:'e1', name:"Danny's American Cheeseburger", category:'comida', sub:'Essen', price:13.9, desc:'Großes Rindfleisch-Patty, Käse, Salat, Tomate, Burgersoße, dazu Pommes, Mayo & Ketchup', stock:20},
+    {id:'e2', name:'Double Cheeseburger', category:'comida', sub:'Essen', price:15.9, desc:'Zwei Rindfleisch-Patties, doppelt Käse, Salat, Tomate, Burgersoße, dazu Pommes', stock:20},
+    {id:'e3', name:'Pommes', category:'comida', sub:'Essen', price:5.5, desc:'', stock:30},
+    {id:'e4', name:'Hähnchen Schnitzel mit Pommes & Oslosalat', category:'comida', sub:'Essen', price:15.9, desc:'', stock:18},
+    {id:'e5', name:'Spaghetti Bolognese', category:'comida', sub:'Essen', price:13.9, desc:'', stock:20},
+    {id:'e6', name:'Rinderstreifen in Champignonsoße', category:'comida', sub:'Essen', price:19.9, desc:'Mit Kartoffelpüree & sautiertem Gemüse', stock:15},
+    {id:'e7', name:'4 Chicken Nuggets – Kids Menü', category:'comida', sub:'Essen', price:7.9, desc:'Mit Pommes', stock:20},
+    {id:'e8', name:'6 Chicken Nuggets', category:'comida', sub:'Essen', price:9.9, desc:'Mit Pommes & Dip', stock:20},
+    {id:'e9', name:'8 Chicken Nuggets', category:'comida', sub:'Essen', price:11.9, desc:'Mit Pommes & Dip', stock:20},
+    {id:'e10', name:'20 Chicken Nuggets Box', category:'comida', sub:'Essen', price:22.9, desc:'Mit 3 Dips', stock:10},
+    {id:'e11', name:'20 Chicken Nuggets Menü', category:'comida', sub:'Essen', price:27.9, desc:'Mit großer Portion Pommes & Getränk', stock:10},
+    {id:'e12', name:'Familienplatte – 20 Chicken Nuggets', category:'comida', sub:'Essen', price:25.9, desc:'Zum Teilen, mit großer Portion Pommes', stock:10},
+    {id:'x1', name:'Extra Burger-Patty', category:'comida', sub:'Extras', price:3.5, desc:'', stock:30},
+    {id:'x2', name:'Extra Champignons', category:'comida', sub:'Extras', price:1.5, desc:'', stock:30},
+    {id:'k1', name:'Espresso', category:'bebida', sub:'Kaffee & Heißgetränke', price:3.5, desc:'', stock:40},
+    {id:'k2', name:'Kaffee Crema', category:'bebida', sub:'Kaffee & Heißgetränke', price:3.5, desc:'', stock:40},
+    {id:'k3', name:'Cappuccino', category:'bebida', sub:'Kaffee & Heißgetränke', price:4.2, desc:'', stock:40},
+    {id:'k4', name:'Latte Macchiato', category:'bebida', sub:'Kaffee & Heißgetränke', price:4.5, desc:'', stock:40},
+    {id:'k5', name:'Tee', category:'bebida', sub:'Kaffee & Heißgetränke', price:3.5, desc:'', stock:40},
+    {id:'s1', name:'Coca-Cola', category:'bebida', sub:'Softdrinks', price:3.5, desc:'', stock:40},
+    {id:'s2', name:'Sprite', category:'bebida', sub:'Softdrinks', price:3.5, desc:'', stock:40},
+    {id:'s3', name:'Fanta', category:'bebida', sub:'Softdrinks', price:3.5, desc:'', stock:40},
+    {id:'s4', name:'Apfelsaft', category:'bebida', sub:'Softdrinks', price:3.5, desc:'', stock:30},
+    {id:'c1', name:'Aperol Spritz', category:'bebida', sub:'Cocktails & Alkohol', price:8.5, desc:'', stock:20},
+    {id:'c2', name:'Cuba Libre', category:'bebida', sub:'Cocktails & Alkohol', price:9, desc:'', stock:20},
+    {id:'c3', name:'Gin Tonic', category:'bebida', sub:'Cocktails & Alkohol', price:9, desc:'', stock:20},
+    {id:'c4', name:'Moscow Mule', category:'bebida', sub:'Cocktails & Alkohol', price:9.5, desc:'', stock:20},
+    {id:'c5', name:'Wein', category:'bebida', sub:'Cocktails & Alkohol', price:7, desc:'', stock:20},
+    {id:'c6', name:'Weißwein', category:'bebida', sub:'Cocktails & Alkohol', price:7, desc:'', stock:20},
+    {id:'c7', name:'Whisky', category:'bebida', sub:'Cocktails & Alkohol', price:8.5, desc:'', stock:20},
+    {id:'c8', name:'Bier', category:'bebida', sub:'Cocktails & Alkohol', price:4, desc:'', stock:60},
+    {id:'c9', name:'Bier vom Fass', category:'bebida', sub:'Cocktails & Alkohol', price:5, desc:'', stock:60},
+  ];
+}
 function seed(){
-  return {
-    items: [
-      {id:'f1', name:'Amerikanischer Burger', category:'comida', price:9, desc:'huevo, cebolla, hongos, cheddar', stock:20},
-      {id:'f2', name:'Pommes', category:'comida', price:5, stock:30},
-      {id:'f3', name:'Hähnchen Schnitzel', category:'comida', price:14.5, stock:18},
-      {id:'f3b', name:'Schnitzel — Extra hongos', category:'comida', price:0.5, stock:18},
-      {id:'f4', name:'Rind Steak (schwarz)', category:'comida', price:15, stock:15},
-      {id:'f5', name:'Spaghetti Bolognese', category:'comida', price:12.5, stock:20},
-      {id:'d1', name:'Espresso', category:'bebida', price:3.5, desc:'Hot', stock:40},
-      {id:'d2', name:'Kaffee Crema', category:'bebida', price:3.5, desc:'Hot', stock:40},
-      {id:'d3', name:'Cappuccino', category:'bebida', price:4, desc:'Hot', stock:40},
-      {id:'d4', name:'Latte Macchiato', category:'bebida', price:4, desc:'Hot', stock:40},
-      {id:'d5', name:'Tee', category:'bebida', price:3, desc:'Hot', stock:40},
-      {id:'d6', name:'Coca-Cola', category:'bebida', price:2.5, desc:'Soft drink', stock:40},
-      {id:'d7', name:'Sprite', category:'bebida', price:2.5, desc:'Soft drink', stock:40},
-      {id:'d8', name:'Fanta', category:'bebida', price:2.5, desc:'Soft drink', stock:40},
-      {id:'d9', name:'Apfelsaft', category:'bebida', price:3, desc:'Soft drink', stock:30},
-      {id:'d10', name:'Bier', category:'bebida', price:3.5, desc:'Alcoholic', stock:60},
-      {id:'d11', name:'Campari', category:'bebida', price:8, desc:'Alcoholic', stock:20},
-      {id:'d12', name:'Aperol Spritz', category:'bebida', price:8, desc:'Alcoholic', stock:20},
-      {id:'d13', name:'Cuba Libre', category:'bebida', price:8, desc:'Alcoholic', stock:20},
-      {id:'d14', name:'Gin Tonic', category:'bebida', price:8, desc:'Alcoholic', stock:20},
-      {id:'d15', name:'Moscow Mule', category:'bebida', price:8, desc:'Alcoholic', stock:20},
-      {id:'d16', name:'Wein', category:'bebida', price:7, desc:'Alcoholic', stock:20},
-      {id:'d17', name:'Whisky', category:'bebida', price:0, desc:'Alcoholic · price missing', stock:20},
-    ],
-    tables: {}
-  };
+  return { items: freshMenu(), tables: {} };
 }
 
 function normalize(s){
   if(!s || typeof s !== 'object') return seed();
   if(!Array.isArray(s.items) || !s.items.length) s.items = seed().items;
+  if(s.menuVersion !== MENU_VERSION){
+    s.items = freshMenu();
+    s.menuVersion = MENU_VERSION;
+    s.tables = {};
+    s._migrated = true;
+  }
   if(!s.tables || typeof s.tables !== 'object'){
     s.tables = {};
   } else if(Array.isArray(s.tables)){
@@ -298,6 +314,7 @@ function renderAll(){
 window.addEventListener('error',e=>{const b=document.getElementById('errBox'); if(b){b.style.display='block'; b.textContent='Error: '+e.message;}});
 let state = load();
 let activeTable = null;
+if(state._migrated){ delete state._migrated; setTimeout(()=>save(), 0); }
 
 function fmt(n){ return '€' + n.toFixed(2).replace(/\.00$/,''); }
 function getItem(id){ return state.items.find(i=>i.id===id); }
@@ -387,17 +404,13 @@ function panelRowHtml(item){
 function renderPanelCat(cat, container){
   container.innerHTML = '';
   const items = state.items.filter(i=>i.category===cat && i.available!==false);
-  if(cat==='bebida'){
-    const groups = {};
-    items.forEach(i=>{ const g = SUB_ORDER.includes(i.desc) ? i.desc : 'Other'; (groups[g]=groups[g]||[]).push(i); });
-    [...SUB_ORDER,'Other'].forEach(g=>{
-      if(!groups[g] || !groups[g].length) return;
-      container.innerHTML += `<div class="cat-label">${g}</div>`;
-      groups[g].sort((a,b)=>a.name.localeCompare(b.name)).forEach(item=>{ container.innerHTML += panelRowHtml(item); });
-    });
-  } else {
-    items.sort((a,b)=>a.name.localeCompare(b.name)).forEach(item=>{ container.innerHTML += panelRowHtml(item); });
-  }
+  const groups = {};
+  items.forEach(i=>{ const g = SUB_ORDER.includes(i.sub) ? i.sub : 'Other'; (groups[g]=groups[g]||[]).push(i); });
+  [...SUB_ORDER,'Other'].forEach(g=>{
+    if(!groups[g] || !groups[g].length) return;
+    container.innerHTML += `<div class="cat-label">${g}</div>`;
+    groups[g].sort((a,b)=>a.name.localeCompare(b.name)).forEach(item=>{ container.innerHTML += panelRowHtml(item); });
+  });
 }
 
 document.getElementById('panelFood').addEventListener('click', handleQtyClick);
@@ -503,7 +516,7 @@ document.getElementById('historyList').addEventListener('click', e=>{
 });
 
 // ---- Menu & stock management ----
-const SUB_ORDER = ['Hot','Soft drink','Alcoholic'];
+const SUB_ORDER = ['Essen','Extras','Kaffee & Heißgetränke','Softdrinks','Cocktails & Alkohol'];
 function renderMenuLists(){
   renderMgmt('comida', document.getElementById('foodList'));
   renderMgmt('bebida', document.getElementById('drinkList'));
@@ -515,11 +528,14 @@ function mgmtRowHtml(item){
     <div class="mgmt-item" style="${paused?'opacity:.55;':''}">
       <div class="info">
         <input class="name-input nameInput" data-id="${item.id}" value="${item.name}" placeholder="Product name">
-        <input class="desc-input descInput" data-id="${item.id}" value="${item.desc||''}" placeholder="Description (ingredients, or Hot / Soft drink / Alcoholic)">
+        <input class="desc-input descInput" data-id="${item.id}" value="${item.desc||''}" placeholder="Description / ingredients">
         <div class="row-meta">
           <select class="cat-select catSelect" data-id="${item.id}">
             <option value="comida" ${item.category==='comida'?'selected':''}>Food</option>
             <option value="bebida" ${item.category==='bebida'?'selected':''}>Drink</option>
+          </select>
+          <select class="cat-select subSelect" data-id="${item.id}">
+            ${SUB_ORDER.map(g=>`<option value="${g}" ${item.sub===g?'selected':''}>${g}</option>`).join('')}
           </select>
           ${low?'<span class="badge low">Low stock</span>':''}
           ${paused?'<span class="badge paused">Paused</span>':''}
@@ -543,17 +559,13 @@ function renderMgmt(cat, container){
   const q = (document.getElementById('menuSearch').value||'').toLowerCase().trim();
   let items = state.items.filter(i=>i.category===cat && i.name.toLowerCase().includes(q));
   container.innerHTML = '';
-  if(cat==='bebida'){
-    const groups = {};
-    items.forEach(i=>{ const g = SUB_ORDER.includes(i.desc) ? i.desc : 'Other'; (groups[g]=groups[g]||[]).push(i); });
-    [...SUB_ORDER,'Other'].forEach(g=>{
-      if(!groups[g] || !groups[g].length) return;
-      container.innerHTML += `<div class="cat-label">${g}</div>`;
-      groups[g].sort((a,b)=>a.name.localeCompare(b.name)).forEach(item=>{ container.innerHTML += mgmtRowHtml(item); });
-    });
-  } else {
-    items.sort((a,b)=>a.name.localeCompare(b.name)).forEach(item=>{ container.innerHTML += mgmtRowHtml(item); });
-  }
+  const groups = {};
+  items.forEach(i=>{ const g = SUB_ORDER.includes(i.sub) ? i.sub : 'Other'; (groups[g]=groups[g]||[]).push(i); });
+  [...SUB_ORDER,'Other'].forEach(g=>{
+    if(!groups[g] || !groups[g].length) return;
+    container.innerHTML += `<div class="cat-label">${g}</div>`;
+    groups[g].sort((a,b)=>a.name.localeCompare(b.name)).forEach(item=>{ container.innerHTML += mgmtRowHtml(item); });
+  });
 }
 document.getElementById('menuSearch').addEventListener('input', renderMenuLists);
 document.getElementById('foodList').addEventListener('input', handleMgmtInput);
@@ -566,6 +578,7 @@ function handleMgmtInput(e){
   else if(e.target.classList.contains('nameInput')){ it.name = e.target.value; save(); }
   else if(e.target.classList.contains('descInput')){ it.desc = e.target.value; save(); }
   else if(e.target.classList.contains('catSelect')){ it.category = e.target.value; save(); renderMenuLists(); }
+  else if(e.target.classList.contains('subSelect')){ it.sub = e.target.value; save(); renderMenuLists(); }
 }
 document.getElementById('foodList').addEventListener('click', handleMgmtClick);
 document.getElementById('drinkList').addEventListener('click', handleMgmtClick);
@@ -616,7 +629,10 @@ if(firebaseReady && db){
   db.on('value', snap=>{
     try{
       const remote = snap.val();
-      if(remote){ state = normalize(remote); } else { db.set(state); }
+      if(remote){
+        state = normalize(remote);
+        if(state._migrated){ delete state._migrated; save(); }
+      } else { db.set(state); }
       renderAll();
     }catch(e){ console.error('Sync error, keeping last good view.', e); }
   });

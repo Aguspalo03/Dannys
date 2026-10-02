@@ -29,6 +29,9 @@ main{padding:20px;max-width:960px;margin:0 auto;}
 .table-card .num{font-family:'Anton',sans-serif;font-size:22px;}
 .table-card .amt{font-size:13px;color:var(--red);font-weight:700;margin-top:4px;}
 .table-card .empty{font-size:12px;opacity:.55;margin-top:4px;}
+.tbl-ctrl{display:flex;gap:10px;margin-top:18px;}
+.tbl-ctrl button{flex:1;padding:12px;border-radius:8px;border:2px solid var(--red);background:var(--paper);color:var(--red);font-family:'Karla',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+.tbl-ctrl button.add{background:var(--red);color:var(--cream);}
 .overlay{position:fixed;inset:0;background:rgba(38,34,32,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;}
 .overlay.open{display:flex;}
 .panel{background:var(--cream);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));}
@@ -99,7 +102,7 @@ main{padding:20px;max-width:960px;margin:0 auto;}
 <header>
   <div>
     <h1>DANNY'S DINER</h1>
-    <div class="sub">Tables · Stock · Sales · v5</div>
+    <div class="sub">Tables · Stock · Sales · v6</div>
   </div>
   <nav>
     <button id="navMesas" class="active">Tables</button>
@@ -112,6 +115,10 @@ main{padding:20px;max-width:960px;margin:0 auto;}
   <div id="viewMesas" class="view active">
     <h2 class="section-title">Tables</h2>
     <div id="tablesGrid" class="tables-grid"></div>
+    <div class="tbl-ctrl">
+      <button id="removeTableBtn">− Remove last table</button>
+      <button id="addTableBtn" class="add">+ Add table</button>
+    </div>
   </div>
 
   <div id="viewHistory" class="view">
@@ -191,7 +198,9 @@ try{
 }catch(e){ console.warn('Firebase not configured, using local storage only.', e); }
 
 const STORAGE_KEY = 'dannys-diner-data-v1';
-const NUM_TABLES = 8;
+const DEFAULT_TABLES = 12;
+const MAX_TABLES = 40;
+function numTables(){ return (state && state.numTables) || DEFAULT_TABLES; }
 const MENU_VERSION = 2;
 const SUB_ORDER = ['Essen','Extras','Kaffee & Heißgetränke','Softdrinks','Cocktails & Alkohol'];
 const OHNE = ['Salat','Tomate','Pilze','Zwiebeln','Ei','Soße'];
@@ -232,7 +241,7 @@ function freshMenu(){
     {id:'c9', name:'Bier vom Fass', category:'bebida', sub:'Cocktails & Alkohol', price:5, desc:'', stock:60},
   ];
 }
-function seed(){ return { items: freshMenu(), tables: {} }; }
+function seed(){ return { items: freshMenu(), tables: {}, numTables: DEFAULT_TABLES }; }
 
 function normalize(s){
   if(!s || typeof s !== 'object') return seed();
@@ -258,6 +267,7 @@ function normalize(s){
     });
   }
   if(!Array.isArray(s.salesLog)) s.salesLog = [];
+  if(!Number.isInteger(s.numTables) || s.numTables < 1) s.numTables = DEFAULT_TABLES;
   return s;
 }
 function load(){
@@ -322,7 +332,7 @@ function switchView(v){
 function renderTables(){
   const grid = document.getElementById('tablesGrid');
   grid.innerHTML = '';
-  for(let i=1;i<=NUM_TABLES;i++){
+  for(let i=1;i<=numTables();i++){
     const order = tableOrder(i);
     const total = tableTotal(i);
     const div = document.createElement('div');
@@ -333,6 +343,23 @@ function renderTables(){
     grid.appendChild(div);
   }
 }
+
+// ---- Add / remove tables ----
+document.getElementById('addTableBtn').onclick = ()=>{
+  if(numTables() >= MAX_TABLES){ toast('Max ' + MAX_TABLES + ' tables'); return; }
+  state.numTables = numTables() + 1;
+  save(); renderTables();
+  toast('Table ' + state.numTables + ' added');
+};
+document.getElementById('removeTableBtn').onclick = ()=>{
+  const last = numTables();
+  if(last <= 1){ toast('You need at least 1 table'); return; }
+  if(tableOrder(last).length){ toast('Table ' + last + ' has an open order — charge it first'); return; }
+  if(!confirm('Remove Table ' + last + '?')) return;
+  state.numTables = last - 1;
+  save(); renderTables();
+  toast('Table ' + last + ' removed');
+};
 
 // ---- Order panel ----
 function openTable(t){
@@ -537,7 +564,7 @@ function mgmtRowHtml(item){
           <div><label>Stock</label><input type="number" min="0" value="${item.stock}" data-id="${item.id}" class="stockInput"></div>
         </div>
         <div class="mgmt-actions">
-          <button class="icon-btn pause pauseBtn" data-id="${item.id}" title="${paused?'Resume':'Pause'}">${paused?'▶':'⏸'}</button>
+          <button class="icon-btn pause pauseBtn" data-id="${item.id}" title="${paused?'Resume':'Pause'}">${paused?'▶️':'⏸'}</button>
           <button class="icon-btn dup dupBtn" data-id="${item.id}" title="Duplicate">⧉</button>
           <button class="icon-btn del" data-id="${item.id}" title="Delete">🗑</button>
         </div>
@@ -630,4 +657,3 @@ if(firebaseReady && db){
 </script>
 </body>
 </html>
-

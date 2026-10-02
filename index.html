@@ -92,13 +92,33 @@ main{padding:20px; max-width:960px; margin:0 auto;}
 .charge-btn:disabled{background:#999; cursor:not-allowed;}
 
 /* Menu/stock view */
-.mgmt-item{display:flex; align-items:center; gap:10px; background:var(--paper); border:2px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:8px;}
-.mgmt-item .info{flex:1; min-width:0;}
-.mgmt-item .name{font-weight:700;}
-.mgmt-item .meta{font-size:12px; opacity:.65;}
-.mgmt-item input[type=number]{width:60px; padding:6px; border-radius:6px; border:2px solid var(--line); background:var(--cream); color:var(--charcoal); font-weight:700; text-align:center;}
-.mgmt-item .low{color:var(--red); font-weight:700;}
-.del-btn{background:none; border:none; color:var(--red); font-size:18px; cursor:pointer;}
+.mgmt-item{display:flex; flex-direction:column; gap:10px; background:var(--paper); border:2px solid var(--line); border-radius:12px; padding:14px; margin-bottom:10px; box-shadow:0 2px 6px rgba(38,34,32,.06); transition:border-color .15s, box-shadow .15s;}
+.mgmt-item:focus-within{border-color:var(--red); box-shadow:0 2px 10px rgba(179,55,44,.15);}
+.mgmt-item .info{width:100%;}
+.mgmt-footer{display:flex; align-items:flex-end; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+.mgmt-fields{display:flex; gap:10px;}
+.mgmt-fields label{font-size:10px; opacity:.6; display:block; margin-bottom:2px;}
+.mgmt-item input[type=number]{width:58px; padding:6px; border-radius:6px; border:2px solid var(--line); background:var(--cream); color:var(--charcoal); font-weight:700; text-align:center;}
+.badge{display:inline-block; padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;}
+.badge.low{background:rgba(179,55,44,.14); color:var(--red);}
+.badge.paused{background:rgba(38,34,32,.14); color:var(--charcoal);}
+.mgmt-actions{display:flex; gap:6px;}
+.icon-btn{width:26px; height:26px; min-width:26px; border-radius:50%; border:none; display:inline-flex; align-items:center; justify-content:center; font-size:11px; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.15); transition:transform .1s;}
+.icon-btn:active{transform:scale(.88);}
+.icon-btn.pause{background:var(--mustard); color:var(--charcoal);}
+.icon-btn.dup{background:#3E6B8E; color:#fff;}
+.icon-btn.del{background:var(--red); color:var(--cream);}
+.name-input{width:100%; background:transparent; border:none; border-bottom:1px dashed var(--line); font-weight:700; font-size:15px; color:var(--charcoal); padding:3px 0 6px; margin-bottom:4px; white-space:normal; overflow-wrap:break-word;}
+.name-input:focus{outline:none; border-bottom-color:var(--red);}
+.desc-input{width:100%; background:transparent; border:none; border-bottom:1px dashed transparent; font-size:12px; font-style:italic; opacity:.7; color:var(--charcoal); padding:2px 0 6px; margin-bottom:6px; white-space:normal;}
+.desc-input:hover,.desc-input:focus{border-bottom-color:var(--line); opacity:1;}
+.desc-input:focus{outline:none; border-bottom-color:var(--red);}
+.row-meta{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+.cat-select{font-size:11px; background:var(--cream); color:var(--charcoal); border:1px solid var(--line); border-radius:6px; padding:2px 4px;}
+.search-wrap{position:relative; margin-bottom:18px;}
+.search-wrap .icon{position:absolute; left:12px; top:50%; transform:translateY(-50%); opacity:.5; font-size:14px;}
+#menuSearch{width:100%; padding:11px 12px 11px 34px; border-radius:10px; border:2px solid var(--line); background:var(--paper); color:var(--charcoal); font-family:'Karla',sans-serif;}
+#menuSearch:focus{outline:none; border-color:var(--red);}
 .add-form{display:grid; grid-template-columns:1fr 90px 90px auto; gap:8px; margin-top:16px; align-items:end;}
 .add-form label{font-size:11px; font-weight:700; text-transform:uppercase; opacity:.65; display:block; margin-bottom:3px;}
 .add-form input,.add-form select{width:100%; padding:8px; border-radius:6px; border:2px solid var(--line); background:var(--paper); color:var(--charcoal);}
@@ -142,7 +162,7 @@ main{padding:20px; max-width:960px; margin:0 auto;}
   </div>
 
   <div id="viewMenu" class="view">
-    <input id="menuSearch" placeholder="Search products…" style="width:100%; padding:10px 12px; margin-bottom:16px; border-radius:8px; border:2px solid var(--line); background:var(--paper); color:var(--charcoal);">
+    <div class="search-wrap"><span class="icon">🔍</span><input id="menuSearch" placeholder="Search products…"></div>
     <h2 class="section-title">Food</h2>
     <div id="foodList"></div>
     <h2 class="section-title" style="margin-top:22px;">Drinks</h2>
@@ -492,20 +512,30 @@ function mgmtRowHtml(item){
   const low = item.stock <= 3;
   const paused = item.available === false;
   return `
-    <div class="mgmt-item" style="${paused?'opacity:.5;':''}">
+    <div class="mgmt-item" style="${paused?'opacity:.55;':''}">
       <div class="info">
-        <input class="nameInput" data-id="${item.id}" value="${item.name}" style="width:100%; background:transparent; border:none; border-bottom:1px dashed var(--line); font-weight:700; color:var(--charcoal); padding:2px 0; margin-bottom:3px;">
-        <select class="catSelect" data-id="${item.id}" style="font-size:11px; background:var(--cream); color:var(--charcoal); border:1px solid var(--line); border-radius:4px;">
-          <option value="comida" ${item.category==='comida'?'selected':''}>Food</option>
-          <option value="bebida" ${item.category==='bebida'?'selected':''}>Drink</option>
-        </select>
-        <span style="font-size:11px; opacity:.6;">${item.desc?' · '+item.desc:''}${low?' · <span class="low">low stock</span>':''}${paused?' · PAUSED':''}</span>
+        <input class="name-input nameInput" data-id="${item.id}" value="${item.name}" placeholder="Product name">
+        <input class="desc-input descInput" data-id="${item.id}" value="${item.desc||''}" placeholder="Description (ingredients, or Hot / Soft drink / Alcoholic)">
+        <div class="row-meta">
+          <select class="cat-select catSelect" data-id="${item.id}">
+            <option value="comida" ${item.category==='comida'?'selected':''}>Food</option>
+            <option value="bebida" ${item.category==='bebida'?'selected':''}>Drink</option>
+          </select>
+          ${low?'<span class="badge low">Low stock</span>':''}
+          ${paused?'<span class="badge paused">Paused</span>':''}
+        </div>
       </div>
-      <div><label style="font-size:10px; opacity:.6; display:block;">Price €</label><input type="number" min="0" step="0.5" value="${item.price}" data-id="${item.id}" class="priceInput" style="width:60px; padding:6px; border-radius:6px; border:2px solid var(--line); background:var(--cream); color:var(--charcoal); font-weight:700; text-align:center;"></div>
-      <div><label style="font-size:10px; opacity:.6; display:block;">Stock</label><input type="number" min="0" value="${item.stock}" data-id="${item.id}" class="stockInput"></div>
-      <button class="del-btn pauseBtn" data-id="${item.id}" title="${paused?'Resume':'Pause'}">${paused?'▶️':'⏸'}</button>
-      <button class="del-btn dupBtn" data-id="${item.id}" title="Duplicate">⧉</button>
-      <button class="del-btn" data-id="${item.id}" title="Delete">🗑</button>
+      <div class="mgmt-footer">
+        <div class="mgmt-fields">
+          <div><label>Price €</label><input type="number" min="0" step="0.5" value="${item.price}" data-id="${item.id}" class="priceInput"></div>
+          <div><label>Stock</label><input type="number" min="0" value="${item.stock}" data-id="${item.id}" class="stockInput"></div>
+        </div>
+        <div class="mgmt-actions">
+          <button class="icon-btn pause pauseBtn" data-id="${item.id}" title="${paused?'Resume':'Pause'}">${paused?'▶':'⏸'}</button>
+          <button class="icon-btn dup dupBtn" data-id="${item.id}" title="Duplicate">⧉</button>
+          <button class="icon-btn del" data-id="${item.id}" title="Delete">🗑</button>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -534,6 +564,7 @@ function handleMgmtInput(e){
   if(e.target.classList.contains('stockInput')){ it.stock = Math.max(0, parseInt(e.target.value)||0); save(); }
   else if(e.target.classList.contains('priceInput')){ const v=parseFloat(e.target.value); it.price = isNaN(v)?0:Math.max(0,v); save(); }
   else if(e.target.classList.contains('nameInput')){ it.name = e.target.value; save(); }
+  else if(e.target.classList.contains('descInput')){ it.desc = e.target.value; save(); }
   else if(e.target.classList.contains('catSelect')){ it.category = e.target.value; save(); renderMenuLists(); }
 }
 document.getElementById('foodList').addEventListener('click', handleMgmtClick);
@@ -541,16 +572,19 @@ document.getElementById('drinkList').addEventListener('click', handleMgmtClick);
 function handleMgmtClick(e){
   const pauseBtn = e.target.closest('.pauseBtn');
   const dupBtn = e.target.closest('.dupBtn');
-  const delBtn = e.target.closest('.del-btn:not(.pauseBtn):not(.dupBtn)');
+  const delBtn = e.target.closest('.icon-btn.del');
   if(pauseBtn){
     const it = getItem(pauseBtn.dataset.id);
     it.available = it.available === false ? true : false;
     save(); renderMenuLists();
   } else if(dupBtn){
     const it = getItem(dupBtn.dataset.id);
-    const copy = Object.assign({}, it, {id: it.category[0]+Date.now(), name: it.name + ' (copy)'});
+    const newId = it.category[0]+Date.now();
+    const copy = Object.assign({}, it, {id: newId, name: it.name + ' (copy)'});
     state.items.push(copy);
     save(); renderMenuLists();
+    const input = document.querySelector(`.nameInput[data-id="${newId}"]`);
+    if(input){ input.scrollIntoView({behavior:'smooth', block:'center'}); input.focus(); input.select(); }
   } else if(delBtn){
     state.items = state.items.filter(i=>i.id!==delBtn.dataset.id);
     Object.keys(state.tables).forEach(t=>{
